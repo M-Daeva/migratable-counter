@@ -1,0 +1,49 @@
+{
+  "name": "counter-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/backend/index.js",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "store": "ts-node ./src/backend/services/store-contract.ts",
+    "call": "ts-node ./src/backend/services/call-contract.ts",
+    "config": "ts-node ./src/backend/services/update-config.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M-Daeva/counter-contracts"
+  },
+  "keywords": [],
+  "author": "M. Daeva",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/M-Daeva/counter-contracts/issues"
+  },
+  "homepage": "https://github.com/M-Daeva/counter-contracts#readme",
+  "dependencies": {
+    "@chain-registry/types": "^0.17.0",
+    "@cosmjs/cosmwasm-stargate": "^0.30.1",
+    "@cosmjs/stargate": "^0.30.1",
+    "axios": "^1.4.0",
+    "chain-registry": "^1.20.0",
+    "crypto-js": "^4.1.1",
+    "decimal.js": "^10.4.3",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@types/crypto-js": "^4.1.1",
+    "@types/node": "^20.2.1",
+    "@types/pako": "^2.0.3",
+    "cosmjs-types": "^0.7.2",
+    "cross-env": "^7.0.3",
+    "pako": "^2.1.0",
+    "shx": "^0.3.4",
+    "typescript": "^5.0.4"
+  }
+}
