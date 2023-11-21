@@ -4,14 +4,13 @@ use cw2::set_contract_version;
 use counter_base::{
     counter::{
         msg::InstantiateMsg,
-        state::{CONFIG, TOTAL_CALLS},
+        state::{CONFIG, CONTRACT_NAME, TOTAL_CALLS},
         types::Config,
     },
     error::ContractError,
     utils::Attrs,
 };
 
-const CONTRACT_NAME: &str = "crates.io:counter";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn try_instantiate(
