@@ -1,6 +1,6 @@
 use cosmwasm_std::{DepsMut, Env, Response};
 
-use counter_base::{counter::msg::MigrateMsg, error::ContractError};
+use counter_base::{counter_new::msg::MigrateMsg, error::ContractError};
 
 pub fn migrate_contract(
     _deps: DepsMut,

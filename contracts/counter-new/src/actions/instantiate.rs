@@ -1,8 +1,8 @@
-use cosmwasm_std::{DepsMut, Env, MessageInfo, Response};
+use cosmwasm_std::{DepsMut, Env, MessageInfo, Response, Uint128};
 use cw2::set_contract_version;
 
 use counter_base::{
-    counter::{
+    counter_new::{
         msg::InstantiateMsg,
         state::{CONTRACT_NAME, TOTAL_CALLS},
     },
@@ -22,7 +22,7 @@ pub fn try_instantiate(
 
     let attrs = Attrs::init("try_instantiate");
 
-    TOTAL_CALLS.save(deps.storage, &0)?;
+    TOTAL_CALLS.save(deps.storage, &Uint128::zero())?;
 
     Ok(Response::new().add_attributes(attrs))
 }

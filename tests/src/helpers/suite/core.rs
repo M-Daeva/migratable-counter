@@ -16,6 +16,7 @@ pub struct Project {
 
     // contract code id
     counter_code_id: u64,
+    counter_new_code_id: u64,
 
     // contract address
     counter_address: Addr,
@@ -29,6 +30,7 @@ impl Project {
             contract_counter: 0,
 
             counter_code_id: 0,
+            counter_new_code_id: 0,
 
             counter_address: Addr::unchecked(""),
         }
@@ -48,11 +50,13 @@ impl Project {
 
         // contracts
         let counter_code_id = project.store_counter_code();
+        let counter_new_code_id = project.store_counter_new_code();
 
         let counter_address = project.instantiate_counter(counter_code_id);
 
         project = Self {
             counter_code_id,
+            counter_new_code_id,
             counter_address,
             ..project
         };
@@ -63,6 +67,10 @@ impl Project {
     // code id getters
     pub fn get_counter_code_id(&self) -> u64 {
         self.counter_code_id
+    }
+
+    pub fn get_counter_new_code_id(&self) -> u64 {
+        self.counter_new_code_id
     }
 
     // contract address getters

@@ -26,10 +26,10 @@ pub enum QueryMsg {
     #[returns(Vec<(cosmwasm_std::Addr, cosmwasm_std::Uint128)>)]
     QueryCounters {},
 
-    #[returns(crate::counter::types::Config)]
-    QueryConfig {},
+    #[returns(cosmwasm_std::Uint128)]
+    QueryTotalCalls {},
+
+    #[returns(cosmwasm_std::Uint128)]
+    QueryTotalCallsPrevious {},
     // TODO: add QueryTotalDeposited {} -> Uint128
 }
-
-#[cw_serde]
-pub enum MigrateMsg {}

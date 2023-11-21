@@ -4,15 +4,14 @@ use cosmwasm_std::{
 };
 
 use counter_base::{
-    counter::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg},
+    counter::msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
     error::ContractError,
 };
 
 use crate::actions::{
     execute::{try_create_counter, try_reset_counter, try_update_counter},
     instantiate::try_instantiate,
-    other::migrate_contract,
-    query::{query_config, query_counters},
+    query::{query_counters, query_total_calls, query_total_calls_previous},
 };
 
 /// Creates a new contract with the specified parameters packed in the "msg" variable
@@ -47,13 +46,10 @@ pub fn execute(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::QueryConfig {} => to_json_binary(&query_config(deps, env)?),
         QueryMsg::QueryCounters {} => to_json_binary(&query_counters(deps, env)?),
+        QueryMsg::QueryTotalCalls {} => to_json_binary(&query_total_calls(deps, env)?),
+        QueryMsg::QueryTotalCallsPrevious {} => {
+            to_json_binary(&query_total_calls_previous(deps, env)?)
+        }
     }
-}
-
-/// Used for contract migration
-#[cfg_attr(not(feature = "library"), entry_point)]
-pub fn migrate(deps: DepsMut, env: Env, msg: MigrateMsg) -> Result<Response, ContractError> {
-    migrate_contract(deps, env, msg)
 }

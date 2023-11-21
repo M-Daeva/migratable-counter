@@ -197,6 +197,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "counter-new"
+version = "1.0.1"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "counter-base",
+ "cw-storage-plus",
+ "cw2",
+ "semver",
+ "serde",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1043,6 +1056,7 @@ dependencies = [
  "cosmwasm-std",
  "counter",
  "counter-base",
+ "counter-new",
  "cw-multi-test",
  "cw-storage-plus",
  "cw2",

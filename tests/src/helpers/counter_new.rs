@@ -1,9 +1,9 @@
-use cosmwasm_std::{coin, Addr, StdResult, Uint128};
+use cosmwasm_std::{coin, StdResult, Uint128};
 use cw_multi_test::{AppResponse, Executor};
 
 use counter_base::{
-    counter::{
-        msg::{ExecuteMsg, QueryMsg},
+    counter_new::{
+        msg::{ExecuteMsg, QueryCountersResponse, QueryMsg},
         types::ActionType,
     },
     error::parse_err,
@@ -14,33 +14,46 @@ use crate::helpers::suite::{
     types::{ProjectAccount, ProjectCoin},
 };
 
-pub trait CounterExtension {
-    fn counter_try_create_counter(
+pub trait CounterNewExtension {
+    fn counter_new_try_create_counter(
         &mut self,
         sender: ProjectAccount,
         amount: u128,
         asset: ProjectCoin,
     ) -> StdResult<AppResponse>;
 
-    fn counter_try_update_counter(
+    fn counter_new_try_update_counter(
         &mut self,
         sender: ProjectAccount,
         action_type: ActionType,
         value: u128,
+        amount: u128,
+        asset: ProjectCoin,
     ) -> StdResult<AppResponse>;
 
-    fn counter_try_reset_counter(&mut self, sender: ProjectAccount) -> StdResult<AppResponse>;
+    fn counter_new_try_set_counter(
+        &mut self,
+        sender: ProjectAccount,
+        value: u128,
+        amount: u128,
+        asset: ProjectCoin,
+    ) -> StdResult<AppResponse>;
 
-    fn counter_query_counters(&self) -> StdResult<Vec<(Addr, Uint128)>>;
+    fn counter_query_counters(
+        &self,
+        addresses: Option<Vec<String>>,
+    ) -> StdResult<QueryCountersResponse>;
 
     fn counter_query_total_calls(&self) -> StdResult<Uint128>;
 
     fn counter_query_total_calls_previous(&self) -> StdResult<Uint128>;
+
+    fn counter_query_total_deposited(&self) -> StdResult<Uint128>;
 }
 
-impl CounterExtension for Project {
+impl CounterNewExtension for Project {
     #[track_caller]
-    fn counter_try_create_counter(
+    fn counter_new_try_create_counter(
         &mut self,
         sender: ProjectAccount,
         amount: u128,
@@ -57,11 +70,13 @@ impl CounterExtension for Project {
     }
 
     #[track_caller]
-    fn counter_try_update_counter(
+    fn counter_new_try_update_counter(
         &mut self,
         sender: ProjectAccount,
         action_type: ActionType,
         value: u128,
+        amount: u128,
+        asset: ProjectCoin,
     ) -> StdResult<AppResponse> {
         self.app
             .execute_contract(
@@ -71,28 +86,44 @@ impl CounterExtension for Project {
                     action_type,
                     value: Uint128::new(value),
                 },
-                &[],
+                &[coin(amount, asset.to_string())],
             )
             .map_err(parse_err)
     }
 
     #[track_caller]
-    fn counter_try_reset_counter(&mut self, sender: ProjectAccount) -> StdResult<AppResponse> {
+    fn counter_new_try_set_counter(
+        &mut self,
+        sender: ProjectAccount,
+        value: u128,
+        amount: u128,
+        asset: ProjectCoin,
+    ) -> StdResult<AppResponse> {
         self.app
             .execute_contract(
                 sender.into(),
                 self.get_counter_address(),
-                &ExecuteMsg::ResetCounter {},
-                &[],
+                &ExecuteMsg::SetCounter {
+                    value: Uint128::new(value),
+                },
+                &[coin(amount, asset.to_string())],
             )
             .map_err(parse_err)
     }
 
     #[track_caller]
-    fn counter_query_counters(&self) -> StdResult<Vec<(Addr, Uint128)>> {
-        self.app
-            .wrap()
-            .query_wasm_smart(self.get_counter_address(), &QueryMsg::QueryCounters {})
+    fn counter_query_counters(
+        &self,
+        addresses: Option<Vec<String>>,
+    ) -> StdResult<QueryCountersResponse> {
+        let addresses = addresses
+            .as_ref()
+            .map(|x| x.iter().map(|y| y.to_string()).collect());
+
+        self.app.wrap().query_wasm_smart(
+            self.get_counter_address(),
+            &QueryMsg::QueryCounters { addresses },
+        )
     }
 
     #[track_caller]
@@ -107,6 +138,14 @@ impl CounterExtension for Project {
         self.app.wrap().query_wasm_smart(
             self.get_counter_address(),
             &QueryMsg::QueryTotalCallsPrevious {},
+        )
+    }
+
+    #[track_caller]
+    fn counter_query_total_deposited(&self) -> StdResult<Uint128> {
+        self.app.wrap().query_wasm_smart(
+            self.get_counter_address(),
+            &QueryMsg::QueryTotalDeposited {},
         )
     }
 }

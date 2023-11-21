@@ -29,7 +29,9 @@ thiserror = "1.0.40"
 anyhow = "1.0.71"
 cw-multi-test = "0.16.5"
 speculoos = "0.11.0"
+semver = "1.0.20"
 
 counter-base = { path = "./packages/counter-base" }
 
 counter = { path = "./contracts/counter" }
+counter-new = { path = "./contracts/counter-new" }

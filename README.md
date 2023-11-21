@@ -10,5 +10,6 @@ To migrate from v1 to v2 following changes are required:
 5. Add `pub const TOTAL_DEPOSITED: Item<Uint128> = Item::new("total coins deposited");` in `state.rs`
 6. Add `ActionType::Mul` in `types.rs`
 7. Add `Reply` entry point to make possible creating counter on `UpdateCounter` or `SetCounter` if it wasn't created before
+8. Add `pub const TOTAL_CALLS_PREVIOUS: Item<Uint128> = Item::new("total v1.0.0 contract calls");` and save `TOTAL_CALLS` value to `TOTAL_CALLS_PREVIOUS`. `TOTAL_CALLS` must be cleared
 
 `COUNTERS` state and contract balances must be preserved.
