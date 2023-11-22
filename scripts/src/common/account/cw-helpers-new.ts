@@ -1,7 +1,7 @@
 import { l } from "../utils";
 import { fromUtf8 } from "@cosmjs/encoding";
-import { CounterMsgComposer } from "../codegen/Counter.message-composer";
-import { CounterQueryClient } from "../codegen/Counter.client";
+import { CounterNewMsgComposer } from "../codegen/CounterNew.message-composer";
+import { CounterNewQueryClient } from "../codegen/CounterNew.client";
 import { NETWORK_CONFIG, COUNTER_WASM } from "../config";
 import {
   getCwClient,
@@ -79,7 +79,7 @@ async function getCwExecHelpers(
   const signingClient = cwClient.client as SigningCosmWasmClient;
   const _signAndBroadcast = signAndBroadcastWrapper(signingClient, owner);
 
-  const counterMsgComposer = new CounterMsgComposer(
+  const counterMsgComposer = new CounterNewMsgComposer(
     owner,
     COUNTER_CONTRACT.DATA.ADDRESS
   );
@@ -121,9 +121,9 @@ async function getCwExecHelpers(
     );
   }
 
-  async function cwResetCounter(gasPrice: string) {
+  async function cwSetCounter(value: number, gasPrice: string) {
     return await _msgWrapperWithGasPrice(
-      [counterMsgComposer.resetCounter()],
+      [counterMsgComposer.setCounter({ value: `${value}` })],
       gasPrice
     );
   }
@@ -131,7 +131,7 @@ async function getCwExecHelpers(
   return {
     cwCreateCounter,
     cwUpdateCounter,
-    cwResetCounter,
+    cwSetCounter,
   };
 }
 
@@ -146,13 +146,13 @@ async function getCwQueryHelpers(network: NetworkName, rpc: string) {
 
   const cosmwasmQueryClient: CosmWasmClient = cwClient.client;
 
-  const counterQueryClient = new CounterQueryClient(
+  const counterQueryClient = new CounterNewQueryClient(
     cosmwasmQueryClient,
     COUNTER_CONTRACT.DATA.ADDRESS
   );
 
-  async function cwQueryCounters() {
-    const res = await counterQueryClient.queryCounters();
+  async function cwQueryCounters(addresses?: string[]) {
+    const res = await counterQueryClient.queryCounters({ addresses });
     l("\n", res, "\n");
     return res;
   }

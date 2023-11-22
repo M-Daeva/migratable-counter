@@ -1,10 +1,14 @@
 import { NetworkConfig } from "../../common/interfaces";
-import { InstantiateMsg } from "../codegen/Counter.types";
+import { InstantiateMsg as CounterInstantiateMsg } from "../codegen/Counter.types";
+import { InstantiateMsg as CounterNewInstantiateMsg } from "../codegen/CounterNew.types";
 import STARGAZE_COUNTER from "./stargaze-counter.json";
+import STARGAZE_COUNTER_NEW from "./stargaze-counter_new.json";
 
 const COUNTER_WASM = "counter.wasm";
+const COUNTER_NEW_WASM = "counter_new.wasm";
 
-const counterInitMsg: InstantiateMsg = {};
+const counterInitMsg: CounterInstantiateMsg = {};
+const counterNewInitMsg: CounterNewInstantiateMsg = {};
 
 const NETWORK_CONFIG: NetworkConfig = {
   STARGAZE: {
@@ -19,15 +23,24 @@ const NETWORK_CONFIG: NetworkConfig = {
     CONTRACTS: [
       {
         WASM: COUNTER_WASM,
-        LABEL: "counter-dev-1.0",
+        LABEL: "counter",
         INIT_MSG: counterInitMsg,
         DATA: {
           CODE: STARGAZE_COUNTER.CODE,
           ADDRESS: STARGAZE_COUNTER.ADDRESS,
         },
       },
+      {
+        WASM: COUNTER_NEW_WASM,
+        LABEL: "counter",
+        INIT_MSG: counterNewInitMsg,
+        DATA: {
+          CODE: STARGAZE_COUNTER_NEW.CODE,
+          ADDRESS: STARGAZE_COUNTER_NEW.ADDRESS,
+        },
+      },
     ],
   },
 };
 
-export { NETWORK_CONFIG, COUNTER_WASM };
+export { NETWORK_CONFIG, COUNTER_WASM, COUNTER_NEW_WASM };

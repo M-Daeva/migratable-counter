@@ -2,7 +2,7 @@ import { l } from "../../common/utils";
 import { PATH, rootPath } from "../envs";
 import { calculateFee } from "@cosmjs/stargate";
 import { toUtf8 } from "@cosmjs/encoding";
-import { NETWORK_CONFIG } from "../../common/config";
+import { NETWORK_CONFIG, COUNTER_NEW_WASM } from "../../common/config";
 import { gzip } from "pako";
 import { readFile, writeFile } from "fs/promises";
 import { getCwClient } from "../../common/account/clients";
@@ -75,6 +75,7 @@ async function main(network: NetworkName) {
       MsgStoreCodeEncodeObject
     ][] = [];
 
+    // store
     for (const CONTRACT of CONTRACTS) {
       const wasmBinary = await readFile(
         rootPath(`../artifacts/${CONTRACT.WASM}`)
@@ -111,6 +112,7 @@ async function main(network: NetworkName) {
       MsgInstantiateContractEncodeObject
     ][] = [];
 
+    // init
     for (const i in contractConfigAndStoreCodeMsgList) {
       const [CONTRACT] = contractConfigAndStoreCodeMsgList[i];
       const { WASM, LABEL, INIT_MSG } = CONTRACT;
@@ -119,6 +121,8 @@ async function main(network: NetworkName) {
       const contractName = WASM.replace(".wasm", "").toLowerCase();
 
       l(`\n"${contractName}" contract code is ${codeId}\n`);
+
+      if (WASM === COUNTER_NEW_WASM) continue;
 
       const instantiateContractMsg: MsgInstantiateContractEncodeObject = {
         typeUrl: "/cosmwasm.wasm.v1.MsgInstantiateContract",
@@ -150,10 +154,11 @@ async function main(network: NetworkName) {
 
     const addressList = parseAddressList(res.rawLog || "");
 
-    for (const i in contractConfigAndInitMsgList) {
-      const [{ WASM }] = contractConfigAndInitMsgList[i];
+    // write
+    for (const i in contractConfigAndStoreCodeMsgList) {
+      const [{ WASM }] = contractConfigAndStoreCodeMsgList[i];
       const codeId = codeIds[i];
-      const contractAddress = addressList[i];
+      const contractAddress = addressList[i] || "";
 
       const networkName = network.toLowerCase();
       const contractName = WASM.replace(".wasm", "").toLowerCase();
