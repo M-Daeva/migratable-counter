@@ -13,16 +13,25 @@ export type ExecuteMsg = {
     value: Uint128;
   };
 } | {
-  reset_counter: {};
+  set_counter: {
+    value: Uint128;
+  };
 };
-export type ActionType = "add" | "sub";
+export type ActionType = "add" | "sub" | "mul";
 export type Uint128 = string;
 export type QueryMsg = {
-  query_counters: {};
+  query_counters: {
+    addresses?: string[] | null;
+  };
 } | {
   query_total_calls: {};
 } | {
   query_total_calls_previous: {};
 };
+export type MigrateMsg = "v2_0_0";
 export type Addr = string;
-export type ArrayOfTupleOfAddrAndUint128 = [Addr, Uint128][];
+export type ArrayOfQueryCountersResponse = QueryCountersResponse[];
+export interface QueryCountersResponse {
+  counter_value: Uint128;
+  owner: Addr;
+}

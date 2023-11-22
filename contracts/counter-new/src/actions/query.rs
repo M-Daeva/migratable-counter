@@ -27,14 +27,6 @@ pub fn query_counters(
         .collect())
 }
 
-pub fn query_total_deposited(deps: Deps, env: Env) -> StdResult<Uint128> {
-    Ok(deps
-        .querier
-        .query_all_balances(env.contract.address)?
-        .get(0)
-        .map_or(Uint128::zero(), |x| x.amount))
-}
-
 pub fn query_total_calls(deps: Deps, _env: Env) -> StdResult<Uint128> {
     TOTAL_CALLS.load(deps.storage)
 }

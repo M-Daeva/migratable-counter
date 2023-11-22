@@ -8,8 +8,8 @@ import { Coin } from "@cosmjs/amino";
 import { MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { toUtf8 } from "@cosmjs/encoding";
-import { InstantiateMsg, ExecuteMsg, ActionType, Uint128, QueryMsg, Addr, ArrayOfTupleOfAddrAndUint128 } from "./Counter.types";
-export interface CounterMsg {
+import { InstantiateMsg, ExecuteMsg, ActionType, Uint128, QueryMsg, MigrateMsg, Addr, ArrayOfQueryCountersResponse, QueryCountersResponse } from "./CounterNew.types";
+export interface CounterNewMsg {
   contractAddress: string;
   sender: string;
   createCounter: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
@@ -20,9 +20,13 @@ export interface CounterMsg {
     actionType: ActionType;
     value: Uint128;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
-  resetCounter: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
+  setCounter: ({
+    value
+  }: {
+    value: Uint128;
+  }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
 }
-export class CounterMsgComposer implements CounterMsg {
+export class CounterNewMsgComposer implements CounterNewMsg {
   sender: string;
   contractAddress: string;
 
@@ -31,7 +35,7 @@ export class CounterMsgComposer implements CounterMsg {
     this.contractAddress = contractAddress;
     this.createCounter = this.createCounter.bind(this);
     this.updateCounter = this.updateCounter.bind(this);
-    this.resetCounter = this.resetCounter.bind(this);
+    this.setCounter = this.setCounter.bind(this);
   }
 
   createCounter = (_funds?: Coin[]): MsgExecuteContractEncodeObject => {
@@ -69,14 +73,20 @@ export class CounterMsgComposer implements CounterMsg {
       })
     };
   };
-  resetCounter = (_funds?: Coin[]): MsgExecuteContractEncodeObject => {
+  setCounter = ({
+    value
+  }: {
+    value: Uint128;
+  }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
       value: MsgExecuteContract.fromPartial({
         sender: this.sender,
         contract: this.contractAddress,
         msg: toUtf8(JSON.stringify({
-          reset_counter: {}
+          set_counter: {
+            value
+          }
         })),
         funds: _funds
       })

@@ -6,14 +6,18 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { InstantiateMsg, ExecuteMsg, ActionType, Uint128, QueryMsg, Addr, ArrayOfTupleOfAddrAndUint128 } from "./Counter.types";
-export interface CounterReadOnlyInterface {
+import { InstantiateMsg, ExecuteMsg, ActionType, Uint128, QueryMsg, MigrateMsg, Addr, ArrayOfQueryCountersResponse, QueryCountersResponse } from "./CounterNew.types";
+export interface CounterNewReadOnlyInterface {
   contractAddress: string;
-  queryCounters: () => Promise<ArrayOfTupleOfAddrAndUint128>;
+  queryCounters: ({
+    addresses
+  }: {
+    addresses?: string[];
+  }) => Promise<ArrayOfQueryCountersResponse>;
   queryTotalCalls: () => Promise<Uint128>;
   queryTotalCallsPrevious: () => Promise<Uint128>;
 }
-export class CounterQueryClient implements CounterReadOnlyInterface {
+export class CounterNewQueryClient implements CounterNewReadOnlyInterface {
   client: CosmWasmClient;
   contractAddress: string;
 
@@ -25,9 +29,15 @@ export class CounterQueryClient implements CounterReadOnlyInterface {
     this.queryTotalCallsPrevious = this.queryTotalCallsPrevious.bind(this);
   }
 
-  queryCounters = async (): Promise<ArrayOfTupleOfAddrAndUint128> => {
+  queryCounters = async ({
+    addresses
+  }: {
+    addresses?: string[];
+  }): Promise<ArrayOfQueryCountersResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
-      query_counters: {}
+      query_counters: {
+        addresses
+      }
     });
   };
   queryTotalCalls = async (): Promise<Uint128> => {
@@ -41,7 +51,7 @@ export class CounterQueryClient implements CounterReadOnlyInterface {
     });
   };
 }
-export interface CounterInterface extends CounterReadOnlyInterface {
+export interface CounterNewInterface extends CounterNewReadOnlyInterface {
   contractAddress: string;
   sender: string;
   createCounter: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -52,9 +62,13 @@ export interface CounterInterface extends CounterReadOnlyInterface {
     actionType: ActionType;
     value: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
-  resetCounter: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
+  setCounter: ({
+    value
+  }: {
+    value: Uint128;
+  }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
 }
-export class CounterClient extends CounterQueryClient implements CounterInterface {
+export class CounterNewClient extends CounterNewQueryClient implements CounterNewInterface {
   client: SigningCosmWasmClient;
   sender: string;
   contractAddress: string;
@@ -66,7 +80,7 @@ export class CounterClient extends CounterQueryClient implements CounterInterfac
     this.contractAddress = contractAddress;
     this.createCounter = this.createCounter.bind(this);
     this.updateCounter = this.updateCounter.bind(this);
-    this.resetCounter = this.resetCounter.bind(this);
+    this.setCounter = this.setCounter.bind(this);
   }
 
   createCounter = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
@@ -88,9 +102,15 @@ export class CounterClient extends CounterQueryClient implements CounterInterfac
       }
     }, fee, memo, _funds);
   };
-  resetCounter = async (fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
+  setCounter = async ({
+    value
+  }: {
+    value: Uint128;
+  }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
-      reset_counter: {}
+      set_counter: {
+        value
+      }
     }, fee, memo, _funds);
   };
 }

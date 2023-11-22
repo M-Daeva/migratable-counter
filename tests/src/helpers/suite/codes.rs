@@ -40,7 +40,6 @@ impl WithCodes for Project {
                 counter_new::contract::instantiate,
                 counter_new::contract::query,
             )
-            .with_reply(counter_new::contract::reply)
             .with_migrate(counter_new::contract::migrate),
         ))
     }

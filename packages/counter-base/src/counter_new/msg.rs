@@ -31,13 +31,12 @@ pub enum QueryMsg {
 
     #[returns(cosmwasm_std::Uint128)]
     QueryTotalCallsPrevious {},
-
-    #[returns(cosmwasm_std::Uint128)]
-    QueryTotalDeposited {},
 }
 
 #[cw_serde]
-pub enum MigrateMsg {}
+pub enum MigrateMsg {
+    V2_0_0,
+}
 
 #[cw_serde]
 pub struct QueryCountersResponse {

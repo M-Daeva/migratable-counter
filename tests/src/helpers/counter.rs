@@ -18,8 +18,7 @@ pub trait CounterExtension {
     fn counter_try_create_counter(
         &mut self,
         sender: ProjectAccount,
-        amount: u128,
-        asset: ProjectCoin,
+        funds: Option<(u128, ProjectCoin)>,
     ) -> StdResult<AppResponse>;
 
     fn counter_try_update_counter(
@@ -43,15 +42,18 @@ impl CounterExtension for Project {
     fn counter_try_create_counter(
         &mut self,
         sender: ProjectAccount,
-        amount: u128,
-        asset: ProjectCoin,
+        funds: Option<(u128, ProjectCoin)>,
     ) -> StdResult<AppResponse> {
+        let send_funds = funds.map_or(vec![], |(amount, asset)| {
+            vec![coin(amount, asset.to_string())]
+        });
+
         self.app
             .execute_contract(
                 sender.into(),
                 self.get_counter_address(),
                 &ExecuteMsg::CreateCounter {},
-                &[coin(amount, asset.to_string())],
+                &send_funds,
             )
             .map_err(parse_err)
     }

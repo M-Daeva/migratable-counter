@@ -9,19 +9,20 @@ pub struct InstantiateMsg {}
 #[cw_serde]
 pub enum ExecuteMsg {
     CreateCounter {},
+
     UpdateCounter {
         action_type: ActionType,
         value: Uint128,
     },
 
-    // TODO: remove it and add SetCounter { value: Uint128 }
+    // TODO: 1. Remove it and add SetCounter { value: Uint128 }
     ResetCounter {},
 }
 
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
-    // TODO: update to QueryCounters { addresses: Option<Vec<String>> } -> Vec<QueryCountersResponse>
+    // TODO: 2. Update to QueryCounters { addresses: Option<Vec<String>> } -> Vec<QueryCountersResponse>
     // and implement `struct QueryCountersResponse { owner: Addr, counter_value: Uint128 }`
     #[returns(Vec<(cosmwasm_std::Addr, cosmwasm_std::Uint128)>)]
     QueryCounters {},
@@ -31,5 +32,4 @@ pub enum QueryMsg {
 
     #[returns(cosmwasm_std::Uint128)]
     QueryTotalCallsPrevious {},
-    // TODO: add QueryTotalDeposited {} -> Uint128
 }

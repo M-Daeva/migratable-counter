@@ -18,8 +18,7 @@ pub trait CounterNewExtension {
     fn counter_new_try_create_counter(
         &mut self,
         sender: ProjectAccount,
-        amount: u128,
-        asset: ProjectCoin,
+        funds: Option<(u128, ProjectCoin)>,
     ) -> StdResult<AppResponse>;
 
     fn counter_new_try_update_counter(
@@ -27,28 +26,22 @@ pub trait CounterNewExtension {
         sender: ProjectAccount,
         action_type: ActionType,
         value: u128,
-        amount: u128,
-        asset: ProjectCoin,
     ) -> StdResult<AppResponse>;
 
     fn counter_new_try_set_counter(
         &mut self,
         sender: ProjectAccount,
         value: u128,
-        amount: u128,
-        asset: ProjectCoin,
     ) -> StdResult<AppResponse>;
 
-    fn counter_query_counters(
+    fn counter_new_query_counters(
         &self,
-        addresses: Option<Vec<String>>,
-    ) -> StdResult<QueryCountersResponse>;
+        addresses: Option<Vec<ProjectAccount>>,
+    ) -> StdResult<Vec<QueryCountersResponse>>;
 
-    fn counter_query_total_calls(&self) -> StdResult<Uint128>;
+    fn counter_new_query_total_calls(&self) -> StdResult<Uint128>;
 
-    fn counter_query_total_calls_previous(&self) -> StdResult<Uint128>;
-
-    fn counter_query_total_deposited(&self) -> StdResult<Uint128>;
+    fn counter_new_query_total_calls_previous(&self) -> StdResult<Uint128>;
 }
 
 impl CounterNewExtension for Project {
@@ -56,15 +49,18 @@ impl CounterNewExtension for Project {
     fn counter_new_try_create_counter(
         &mut self,
         sender: ProjectAccount,
-        amount: u128,
-        asset: ProjectCoin,
+        funds: Option<(u128, ProjectCoin)>,
     ) -> StdResult<AppResponse> {
+        let send_funds = funds.map_or(vec![], |(amount, asset)| {
+            vec![coin(amount, asset.to_string())]
+        });
+
         self.app
             .execute_contract(
                 sender.into(),
                 self.get_counter_address(),
                 &ExecuteMsg::CreateCounter {},
-                &[coin(amount, asset.to_string())],
+                &send_funds,
             )
             .map_err(parse_err)
     }
@@ -75,8 +71,6 @@ impl CounterNewExtension for Project {
         sender: ProjectAccount,
         action_type: ActionType,
         value: u128,
-        amount: u128,
-        asset: ProjectCoin,
     ) -> StdResult<AppResponse> {
         self.app
             .execute_contract(
@@ -86,7 +80,7 @@ impl CounterNewExtension for Project {
                     action_type,
                     value: Uint128::new(value),
                 },
-                &[coin(amount, asset.to_string())],
+                &[],
             )
             .map_err(parse_err)
     }
@@ -96,8 +90,6 @@ impl CounterNewExtension for Project {
         &mut self,
         sender: ProjectAccount,
         value: u128,
-        amount: u128,
-        asset: ProjectCoin,
     ) -> StdResult<AppResponse> {
         self.app
             .execute_contract(
@@ -106,16 +98,16 @@ impl CounterNewExtension for Project {
                 &ExecuteMsg::SetCounter {
                     value: Uint128::new(value),
                 },
-                &[coin(amount, asset.to_string())],
+                &[],
             )
             .map_err(parse_err)
     }
 
     #[track_caller]
-    fn counter_query_counters(
+    fn counter_new_query_counters(
         &self,
-        addresses: Option<Vec<String>>,
-    ) -> StdResult<QueryCountersResponse> {
+        addresses: Option<Vec<ProjectAccount>>,
+    ) -> StdResult<Vec<QueryCountersResponse>> {
         let addresses = addresses
             .as_ref()
             .map(|x| x.iter().map(|y| y.to_string()).collect());
@@ -127,25 +119,17 @@ impl CounterNewExtension for Project {
     }
 
     #[track_caller]
-    fn counter_query_total_calls(&self) -> StdResult<Uint128> {
+    fn counter_new_query_total_calls(&self) -> StdResult<Uint128> {
         self.app
             .wrap()
             .query_wasm_smart(self.get_counter_address(), &QueryMsg::QueryTotalCalls {})
     }
 
     #[track_caller]
-    fn counter_query_total_calls_previous(&self) -> StdResult<Uint128> {
+    fn counter_new_query_total_calls_previous(&self) -> StdResult<Uint128> {
         self.app.wrap().query_wasm_smart(
             self.get_counter_address(),
             &QueryMsg::QueryTotalCallsPrevious {},
-        )
-    }
-
-    #[track_caller]
-    fn counter_query_total_deposited(&self) -> StdResult<Uint128> {
-        self.app.wrap().query_wasm_smart(
-            self.get_counter_address(),
-            &QueryMsg::QueryTotalDeposited {},
         )
     }
 }
